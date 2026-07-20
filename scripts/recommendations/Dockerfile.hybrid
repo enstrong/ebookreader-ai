@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir \
+    implicit==0.7.3 \
+    numpy==2.4.4 \
+    pandas==3.0.2 \
+    scipy==1.17.1
+
+COPY scripts/recommendations ./scripts/recommendations
+
+RUN mkdir -p \
+    /app/data/recommendations/experiments \
+    /app/data/recommendations/hybrid
+
+ENV RECOMMENDATION_HOST=0.0.0.0
+ENV RECOMMENDATION_PORT=8001
+
+EXPOSE 8001
+
+CMD ["python", "scripts/recommendations/hybrid_recommendation_service.py"]
